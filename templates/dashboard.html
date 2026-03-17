@@ -1,0 +1,243 @@
+﻿{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1 class="fw-bold mb-1">Dashboard</h1>
+    <p class="text-muted mb-0">Gerencie seus leads e acompanhe seu crescimento.</p>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-md-3">
+    <div class="card shadow-sm border-0 rounded-4">
+      <div class="card-body">
+        <h6 class="text-muted">Empresa</h6>
+        <h4 class="fw-bold">{{ user.empresa }}</h4>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card shadow-sm border-0 rounded-4">
+      <div class="card-body">
+        <h6 class="text-muted">Total de Leads</h6>
+        <h4 class="fw-bold">{{ leads|length }}</h4>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card shadow-sm border-0 rounded-4">
+      <div class="card-body">
+        <h6 class="text-muted">Novos</h6>
+        <h4 class="fw-bold">{{ status_counts.novo }}</h4>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card shadow-sm border-0 rounded-4">
+      <div class="card-body">
+        <h6 class="text-muted">Fechados</h6>
+        <h4 class="fw-bold">{{ status_counts.fechado }}</h4>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-4">
+    <div class="card shadow-sm border-0 rounded-4">
+      <div class="card-body">
+        <h4 class="fw-bold mb-3">Novo Lead</h4>
+
+        <form method="POST">
+          <div class="mb-3">
+            <label class="form-label">Nome</label>
+            <input type="text" name="nome" class="form-control" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Telefone</label>
+            <input type="text" name="telefone" class="form-control">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Mensagem</label>
+            <textarea name="mensagem" class="form-control" rows="4"></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-success w-100">Salvar Lead</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4 mt-4">
+      <div class="card-body">
+        <h4 class="fw-bold mb-3">Visão geral</h4>
+        <canvas id="leadsChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card shadow-sm border-0 rounded-4 mb-4">
+      <div class="card-body">
+        <h4 class="fw-bold mb-3">Funil de vendas</h4>
+
+        <div class="row g-3">
+          <div class="col-md-3"><div class="p-3 rounded bg-primary-subtle border"><div class="small text-muted">Novo</div><div class="fs-4 fw-bold">{{ status_counts.novo }}</div></div></div>
+          <div class="col-md-3"><div class="p-3 rounded bg-warning-subtle border"><div class="small text-muted">Contato</div><div class="fs-4 fw-bold">{{ status_counts.contato }}</div></div></div>
+          <div class="col-md-3"><div class="p-3 rounded bg-info-subtle border"><div class="small text-muted">Proposta</div><div class="fs-4 fw-bold">{{ status_counts.proposta }}</div></div></div>
+          <div class="col-md-3"><div class="p-3 rounded bg-success-subtle border"><div class="small text-muted">Fechado</div><div class="fs-4 fw-bold">{{ status_counts.fechado }}</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4 mb-4">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+          <h4 class="fw-bold mb-0">Leads cadastrados</h4>
+
+          <form method="GET" class="d-flex gap-2 flex-wrap">
+            <input type="text" name="busca" class="form-control" placeholder="Buscar por nome" value="{{ busca }}">
+
+            <select name="status" class="form-select">
+              <option value="">Todos os status</option>
+              {% for status in status_options %}
+              <option value="{{ status }}" {% if status_filtro == status %}selected{% endif %}>{{ status|capitalize }}</option>
+              {% endfor %}
+            </select>
+
+            <button type="submit" class="btn btn-outline-secondary">Filtrar</button>
+          </form>
+        </div>
+
+        {% if leads %}
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Telefone</th>
+                <th>Mensagem</th>
+                <th>Status</th>
+                <th class="text-end">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for lead in leads %}
+              <tr>
+                <td>{{ lead.nome }}</td>
+                <td>{{ lead.telefone }}</td>
+                <td>{{ lead.mensagem }}</td>
+                <td>
+                  {% if lead.status == "novo" %}<span class="badge text-bg-primary">Novo</span>
+                  {% elif lead.status == "contato" %}<span class="badge text-bg-warning">Contato</span>
+                  {% elif lead.status == "proposta" %}<span class="badge text-bg-info">Proposta</span>
+                  {% elif lead.status == "fechado" %}<span class="badge text-bg-success">Fechado</span>
+                  {% endif %}
+                </td>
+                <td class="text-end">
+                  <form method="POST" action="{{ url_for('dashboard.atualizar_status', lead_id=lead.id) }}" class="d-inline">
+                    <select name="status" class="form-select form-select-sm d-inline w-auto" onchange="this.form.submit()">
+                      {% for status in status_options %}
+                      <option value="{{ status }}" {% if lead.status == status %}selected{% endif %}>{{ status|capitalize }}</option>
+                      {% endfor %}
+                    </select>
+                  </form>
+
+                  <a href="{{ url_for('dashboard.editar_lead', lead_id=lead.id) }}" class="btn btn-sm btn-outline-primary ms-1">Editar</a>
+
+                  <form method="POST" action="{{ url_for('dashboard.excluir_lead', lead_id=lead.id) }}" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir este lead?');">
+                    <button type="submit" class="btn btn-sm btn-outline-danger ms-1">Excluir</button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="text-muted mb-0">Nenhum lead encontrado.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+      <div class="card-body">
+        <h4 class="fw-bold mb-3">Kanban de Leads</h4>
+
+        <div class="row g-3">
+          {% for status in status_options %}
+          <div class="col-md-6 col-xl-3">
+            <div class="p-3 border rounded-4 bg-light h-100">
+              <div class="d-flex justify-content-between mb-2">
+                <strong>{{ status|capitalize }}</strong>
+                <span class="badge bg-secondary">{{ kanban_leads[status]|length }}</span>
+              </div>
+
+              <div class="kanban-dropzone" data-status="{{ status }}">
+                {% for lead in kanban_leads[status] %}
+                <div class="card mb-2 p-2 kanban-card" data-id="{{ lead.id }}">
+                  <strong>{{ lead.nome }}</strong><br>
+                  <small>{{ lead.telefone }}</small>
+                </div>
+                {% endfor %}
+              </div>
+
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+<script>
+  const ctx = document.getElementById("leadsChart");
+  new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: {{ chart_labels|tojson }},
+      datasets: [{
+        label: "Leads por dia",
+        data: {{ chart_values|tojson }},
+        tension: 0.3
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+
+  document.querySelectorAll(".kanban-dropzone").forEach((zone) => {
+    new Sortable(zone, {
+      group: "kanban",
+      animation: 150,
+      onEnd: function (evt) {
+        const leadId = evt.item.dataset.id;
+        const novoStatus = evt.to.dataset.status;
+
+        fetch(`/lead/${leadId}/kanban-status`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: novoStatus })
+        }).then((response) => {
+          if (!response.ok) window.location.reload();
+        }).catch(() => {
+          window.location.reload();
+        });
+      }
+    });
+  });
+</script>
+{% endblock %}

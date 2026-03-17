@@ -1,0 +1,13 @@
+/***** Section *****/ /***** End Section *****/
+
+body {
+  font-family: Arial, sans-serif;
+}
+
+.card {
+  transition: 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}

@@ -1,0 +1,73 @@
+{% extends "base.html" %} {% block title %}Editar Lead{% endblock %} {% block
+content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card shadow-sm border-0 rounded-4">
+      <div class="card-body p-4">
+        <h2 class="fw-bold mb-4">Editar Lead</h2>
+
+        <form method="POST">
+          <div class="mb-3">
+            <label class="form-label">Nome</label>
+            <input
+              type="text"
+              name="nome"
+              class="form-control"
+              value="{{ lead.nome }}"
+              required
+            />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Telefone</label>
+            <input
+              type="text"
+              name="telefone"
+              class="form-control"
+              value="{{ lead.telefone }}"
+            />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Mensagem</label>
+            <textarea name="mensagem" class="form-control" rows="4">
+{{ lead.mensagem }}</textarea
+            >
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-select">
+              {% for status in status_options %}
+              <option
+                value="{{ status }}"
+                {%
+                if
+                lead.status=""
+                ="status"
+                %}selected{%
+                endif
+                %}
+              >
+                {{ status|capitalize }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">
+              Salvar alterações
+            </button>
+            <a
+              href="{{ url_for('dashboard.dashboard') }}"
+              class="btn btn-outline-secondary"
+              >Cancelar</a
+            >
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

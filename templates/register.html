@@ -1,0 +1,61 @@
+{% extends "base.html" %} {% block title %}Criar Conta{% endblock %} {% block
+content %}
+<div
+  class="row justify-content-center align-items-center"
+  style="min-height: 70vh"
+>
+  <div class="col-lg-5">
+    <div class="card shadow-lg border-0 rounded-4">
+      <div class="card-body p-5">
+        <h2 class="fw-bold text-center mb-4">Criar conta</h2>
+
+        <p class="text-center text-muted mb-4">
+          Crie sua conta e comece a gerenciar seus leads.
+        </p>
+
+        <form method="POST">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Empresa</label>
+            <input
+              type="text"
+              name="empresa"
+              class="form-control form-control-lg"
+              placeholder="Nome da empresa"
+              required
+            />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Email</label>
+            <input
+              type="email"
+              name="email"
+              class="form-control form-control-lg"
+              placeholder="contato@empresa.com"
+              required
+            />
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Senha</label>
+            <input
+              type="password"
+              name="senha"
+              class="form-control form-control-lg"
+              placeholder="Crie uma senha segura"
+              required
+            />
+          </div>
+
+          <button class="btn btn-primary btn-lg w-100">Criar conta</button>
+        </form>
+
+        <div class="text-center mt-4">
+          <span class="text-muted">Já tem conta?</span>
+          <a href="/login" class="fw-semibold">Entrar</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
